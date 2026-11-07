@@ -29,12 +29,16 @@ jobs:
           WRAPPER=$(find extracted -name gradlew -type f | head -n 1)
           test -n "$WRAPPER"
           PROJECT_DIR=$(dirname "$WRAPPER")
-          chmod +x "$WRAPPER"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
+      - name: Install Gradle 8.7
+        run: |
+          curl -fL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp
+
       - name: Build APK
-        working-directory: ${{ env.PROJECT_DIR }}
-        run: ./gradlew assembleDebug
+        run: |
+          /tmp/gradle-8.7/bin/gradle --no-daemon -p "$PROJECT_DIR" assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
